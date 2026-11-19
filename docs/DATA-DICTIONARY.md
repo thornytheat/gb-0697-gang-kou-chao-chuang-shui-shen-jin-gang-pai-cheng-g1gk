@@ -7,3 +7,9 @@ id保持字符串。kind取tide、ship、pilot、block。start/end带时区；�
 业务ID按kind命名空间隔离。同一UTC时刻的潮位不同值全部隔离为TIDE_TIME_CONFLICT，不能用其中任意值开启安全窗；同值重复仅保留编号最小者。
 
 冲突潮位时刻保留为插值断点，相邻有效观测不能跨越该时刻推算安全窗。
+
+# 进港计划占窗（M8）
+
+计划版本 plan_versions 按 (plan_id, version) 主键递增；状态取 EFFECTIVE（生效）、CONFLICT（待调整，携带 conflicts 回执）、SUPERSEDED（被自身新版替换）、CANCELLED（已取消）。bookings 仅保存当前生效占位，plan_id 主键唯一。requests 以 request_key 幂等键保存首次响应（含冲突），同键重放不二次占位。
+
+占用区间为半开 [start_s, end_s)，结束同刻可开始下一航次；不同航段互不冲突。冲突检查只在 BEGIN IMMEDIATE 写事务内进行，写锁串行化并发提交。调整受影响船舶时用新 request_key 提交同 plan_id，成功后旧版转 SUPERSEDED；若新版冲突，旧版保持 EFFECTIVE 不变。

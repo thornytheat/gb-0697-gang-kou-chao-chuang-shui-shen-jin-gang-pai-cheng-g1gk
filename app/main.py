@@ -16,9 +16,12 @@ templates.env.filters["utc_instant"]=display_full
 MODULES=['潮位接收', '船舶条件', '水深求窗', '航道冲突', '引航排程', '计划对账', '变更复核']
 for n,slug in enumerate(['tides', 'vessels', 'windows', 'channel', 'schedule', 'balance', 'changes'],1):
     app.include_router(importlib.import_module(f"app.modules.m{n}_{slug}.handler").router)
+app.include_router(importlib.import_module("app.modules.m8_booking.handler").router)
 @app.exception_handler(BusinessError)
 async def domain_error(request,exc):
-    return JSONResponse({"error":exc.code,"message":str(exc)},status_code=exc.status)
+    body={"error":exc.code,"message":str(exc)}
+    if exc.details is not None: body["details"]=exc.details
+    return JSONResponse(body,status_code=exc.status)
 @app.get("/health")
 def health(): return {"status":"ok"}
 @app.get("/",response_class=HTMLResponse)

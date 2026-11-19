@@ -25,6 +25,7 @@ docker compose config --quiet
 - M5 引航排程：`/module/5`，独立计算 `POST /api/5`。
 - M6 计划对账：`/module/6`，独立计算 `POST /api/6`。
 - M7 变更复核：`/module/7`，独立计算 `POST /api/7`。
+- M8 进港计划占窗：`/booking` 工作台。同一航段同一时刻仅一份计划生效，冲突返回写明船舶与时段的回执，支持受影响船单独调整重提、幂等重试与旧版保留；接口见 `POST /api/8/plans`。
 
 ## 输入与输出
 
